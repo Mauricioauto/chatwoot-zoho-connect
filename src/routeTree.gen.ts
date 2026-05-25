@@ -9,38 +9,102 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as CrmPanelRouteImport } from './routes/crm-panel'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiPublicZohoSendRouteImport } from './routes/api/public/zoho-send'
+import { Route as ApiPublicChatwootWebhookRouteImport } from './routes/api/public/chatwoot-webhook'
+import { Route as ApiPublicChatwootSendRouteImport } from './routes/api/public/chatwoot-send'
 
+const CrmPanelRoute = CrmPanelRouteImport.update({
+  id: '/crm-panel',
+  path: '/crm-panel',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicZohoSendRoute = ApiPublicZohoSendRouteImport.update({
+  id: '/api/public/zoho-send',
+  path: '/api/public/zoho-send',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicChatwootWebhookRoute =
+  ApiPublicChatwootWebhookRouteImport.update({
+    id: '/api/public/chatwoot-webhook',
+    path: '/api/public/chatwoot-webhook',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicChatwootSendRoute = ApiPublicChatwootSendRouteImport.update({
+  id: '/api/public/chatwoot-send',
+  path: '/api/public/chatwoot-send',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/crm-panel': typeof CrmPanelRoute
+  '/api/public/chatwoot-send': typeof ApiPublicChatwootSendRoute
+  '/api/public/chatwoot-webhook': typeof ApiPublicChatwootWebhookRoute
+  '/api/public/zoho-send': typeof ApiPublicZohoSendRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/crm-panel': typeof CrmPanelRoute
+  '/api/public/chatwoot-send': typeof ApiPublicChatwootSendRoute
+  '/api/public/chatwoot-webhook': typeof ApiPublicChatwootWebhookRoute
+  '/api/public/zoho-send': typeof ApiPublicZohoSendRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/crm-panel': typeof CrmPanelRoute
+  '/api/public/chatwoot-send': typeof ApiPublicChatwootSendRoute
+  '/api/public/chatwoot-webhook': typeof ApiPublicChatwootWebhookRoute
+  '/api/public/zoho-send': typeof ApiPublicZohoSendRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/crm-panel'
+    | '/api/public/chatwoot-send'
+    | '/api/public/chatwoot-webhook'
+    | '/api/public/zoho-send'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/crm-panel'
+    | '/api/public/chatwoot-send'
+    | '/api/public/chatwoot-webhook'
+    | '/api/public/zoho-send'
+  id:
+    | '__root__'
+    | '/'
+    | '/crm-panel'
+    | '/api/public/chatwoot-send'
+    | '/api/public/chatwoot-webhook'
+    | '/api/public/zoho-send'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CrmPanelRoute: typeof CrmPanelRoute
+  ApiPublicChatwootSendRoute: typeof ApiPublicChatwootSendRoute
+  ApiPublicChatwootWebhookRoute: typeof ApiPublicChatwootWebhookRoute
+  ApiPublicZohoSendRoute: typeof ApiPublicZohoSendRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/crm-panel': {
+      id: '/crm-panel'
+      path: '/crm-panel'
+      fullPath: '/crm-panel'
+      preLoaderRoute: typeof CrmPanelRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,22 +112,37 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/zoho-send': {
+      id: '/api/public/zoho-send'
+      path: '/api/public/zoho-send'
+      fullPath: '/api/public/zoho-send'
+      preLoaderRoute: typeof ApiPublicZohoSendRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/chatwoot-webhook': {
+      id: '/api/public/chatwoot-webhook'
+      path: '/api/public/chatwoot-webhook'
+      fullPath: '/api/public/chatwoot-webhook'
+      preLoaderRoute: typeof ApiPublicChatwootWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/chatwoot-send': {
+      id: '/api/public/chatwoot-send'
+      path: '/api/public/chatwoot-send'
+      fullPath: '/api/public/chatwoot-send'
+      preLoaderRoute: typeof ApiPublicChatwootSendRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CrmPanelRoute: CrmPanelRoute,
+  ApiPublicChatwootSendRoute: ApiPublicChatwootSendRoute,
+  ApiPublicChatwootWebhookRoute: ApiPublicChatwootWebhookRoute,
+  ApiPublicZohoSendRoute: ApiPublicZohoSendRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
