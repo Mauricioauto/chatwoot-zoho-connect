@@ -1,1 +1,279 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Zoho CRM – Widget Chatwoot</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'DM Sans', sans-serif; background: #f4f6f9; color: #1a1d23; min-height: 100vh; padding: 0; }
+    header { background: #fff; border-bottom: 1px solid #e5e9f0; padding: 14px 18px; display: flex; align-items: center; gap: 10px; position: sticky; top: 0; z-index: 10; }
+    .logo { width: 28px; height: 28px; background: linear-gradient(135deg, #e84f37 0%, #f7a800 100%); border-radius: 7px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .logo svg { width: 16px; height: 16px; fill: #fff; }
+    header h1 { font-size: 14px; font-weight: 600; color: #1a1d23; }
+    header .sub { font-size: 11px; color: #8a92a0; margin-top: 1px; }
+    .status-dot { width: 7px; height: 7px; border-radius: 50%; background: #ccc; margin-left: auto; transition: background .3s; }
+    .status-dot.connected { background: #22c55e; }
+    .status-dot.error { background: #ef4444; }
+    main { padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+    .card { background: #fff; border-radius: 12px; border: 1px solid #e5e9f0; overflow: hidden; }
+    .card-header { padding: 10px 14px; font-size: 10px; font-weight: 600; letter-spacing: .8px; text-transform: uppercase; color: #8a92a0; border-bottom: 1px solid #f0f2f6; display: flex; align-items: center; gap: 6px; }
+    .contact-hero { display: flex; align-items: center; gap: 12px; padding: 14px; }
+    .avatar { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; color: #fff; flex-shrink: 0; }
+    .contact-info h2 { font-size: 15px; font-weight: 600; color: #1a1d23; }
+    .contact-info .role { font-size: 12px; color: #8a92a0; margin-top: 2px; }
+    .field-list { display: flex; flex-direction: column; }
+    .field-row { display: flex; align-items: flex-start; padding: 9px 14px; gap: 10px; border-bottom: 1px solid #f4f6f9; transition: background .15s; }
+    .field-row:last-child { border-bottom: none; }
+    .field-row:hover { background: #fafbfc; }
+    .field-icon { width: 28px; height: 28px; border-radius: 7px; background: #f4f6f9; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+    .field-label { font-size: 10px; color: #8a92a0; font-weight: 500; letter-spacing: .3px; }
+    .field-value { font-size: 13px; color: #1a1d23; font-weight: 500; margin-top: 1px; word-break: break-all; }
+    .field-value.empty { color: #bdc3cc; font-style: italic; font-weight: 400; font-size: 12px; }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+    .badge-green { background: #dcfce7; color: #16a34a; }
+    .badge-blue  { background: #dbeafe; color: #1d4ed8; }
+    .badge-gray  { background: #f1f5f9; color: #64748b; }
+    .badge-orange{ background: #ffedd5; color: #c2410c; }
+    .btn-zoho { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; padding: 10px; background: linear-gradient(135deg, #e84f37 0%, #f7a800 100%); color: #fff; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; text-decoration: none; transition: opacity .2s; margin-top: 4px; }
+    .btn-zoho:hover { opacity: .9; }
+    .btn-zoho svg { width: 14px; height: 14px; fill: #fff; }
+    .btn-refresh { display: block; width: 100%; margin-top: 10px; padding: 8px; background: #f4f6f9; border: 1px solid #e5e9f0; border-radius: 8px; font-size: 12px; color: #667eea; font-weight: 600; cursor: pointer; text-align: center; }
+    .btn-refresh:hover { background: #eef0f8; }
+    .state-box { padding: 28px 20px; text-align: center; color: #8a92a0; }
+    .state-box .icon { font-size: 32px; margin-bottom: 10px; }
+    .state-box p { font-size: 13px; line-height: 1.5; }
+    .state-box small { font-size: 11px; color: #bdc3cc; font-family: 'DM Mono', monospace; display: block; margin-top: 6px; }
+    .spinner { width: 28px; height: 28px; border: 3px solid #e5e9f0; border-top-color: #e84f37; border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto 12px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .conv-list { display: flex; flex-direction: column; gap: 0; }
+    .conv-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 1px solid #f4f6f9; cursor: pointer; transition: background .15s; }
+    .conv-item:hover { background: #f4f6f9; }
+    .conv-item:last-child { border-bottom: none; }
+    .conv-avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0; }
+    .conv-name { font-size: 13px; font-weight: 600; color: #1a1d23; }
+    .conv-id { font-size: 11px; color: #8a92a0; }
+  </style>
+</head>
+<body>
+<header>
+  <div class="logo">
+    <svg viewBox="0 0 24 24"><path d="M4 4h16v2.5L9.5 18H20v2H4v-2.5L14.5 6H4V4z"/></svg>
+  </div>
+  <div>
+    <h1>Zoho CRM</h1>
+    <div class="sub">Widget para Chatwoot</div>
+  </div>
+  <div class="status-dot" id="statusDot"></div>
+</header>
 
+<main id="main">
+  <div class="state-box">
+    <div class="spinner"></div>
+    <p>Carregando conversas...</p>
+  </div>
+</main>
+
+<script>
+  var CHATWOOT_URL     = "https://chatwoot.solutionatendimento.com.br";
+  var CHATWOOT_TOKEN   = "AK9e7SnaUdPhf7jEhanmKqWf";
+  var CHATWOOT_ACCOUNT = 1;
+  var ZOHO_TOKEN       = "1000.9bd9efb65200988edb218cae18a45e3d.50c55705e9d19292d47810f429c4ff82";
+  var ZOHO_BASE        = "https://www.zohoapis.com";
+
+  var dot  = document.getElementById("statusDot");
+  var main = document.getElementById("main");
+
+  // Tenta postMessage primeiro
+  var gotContext = false;
+  window.addEventListener("message", function(e) {
+    if (!e.data || typeof e.data !== "object") return;
+    if (e.data.event !== "appContext") return;
+    gotContext = true;
+    var contact = e.data.data && e.data.data.contact;
+    if (!contact) { showState("⚠️", "Nenhum contato na conversa."); return; }
+    renderLoading(contact);
+    searchZoho(contact);
+  });
+  window.parent.postMessage("chatwoot-dashboard-app:fetch-info", "*");
+
+  // Após 2s sem resposta, carrega lista de conversas recentes
+  setTimeout(function() {
+    if (!gotContext) loadRecentConversations();
+  }, 2000);
+
+  function loadRecentConversations() {
+    fetch(CHATWOOT_URL + "/api/v1/accounts/" + CHATWOOT_ACCOUNT + "/conversations?page=1", {
+      headers: { "api_access_token": CHATWOOT_TOKEN }
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      var convs = (data.data && data.data.payload) ? data.data.payload : [];
+      if (!convs.length) { showState("📭", "Nenhuma conversa encontrada."); return; }
+      showConvList(convs.slice(0, 8));
+    })
+    .catch(function(err) {
+      showState("❌", "Erro ao buscar conversas.", err.message);
+    });
+  }
+
+  function showConvList(convs) {
+    var html = '<div class="card"><div class="card-header">Selecione a conversa</div><div class="conv-list">';
+    convs.forEach(function(c) {
+      var name = (c.meta && c.meta.sender && c.meta.sender.name) ? c.meta.sender.name : "Sem nome";
+      var id = c.id;
+      html += '<div class="conv-item" onclick="loadConv(' + id + ')">' +
+        '<div class="conv-avatar">' + initials(name) + '</div>' +
+        '<div><div class="conv-name">' + esc(name) + '</div>' +
+        '<div class="conv-id">#' + id + '</div></div></div>';
+    });
+    html += '</div></div>';
+    html += '<button class="btn-refresh" onclick="loadRecentConversations()">🔄 Atualizar lista</button>';
+    main.innerHTML = html;
+  }
+
+  function loadConv(convId) {
+    main.innerHTML = '<div class="state-box"><div class="spinner"></div><p>Carregando conversa #' + convId + '...</p></div>';
+    fetch(CHATWOOT_URL + "/api/v1/accounts/" + CHATWOOT_ACCOUNT + "/conversations/" + convId, {
+      headers: { "api_access_token": CHATWOOT_TOKEN }
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(conv) {
+      var contactId = conv.meta && conv.meta.sender && conv.meta.sender.id;
+      if (!contactId) { showState("⚠️", "Conversa sem contato."); return; }
+      return fetch(CHATWOOT_URL + "/api/v1/accounts/" + CHATWOOT_ACCOUNT + "/contacts/" + contactId, {
+        headers: { "api_access_token": CHATWOOT_TOKEN }
+      });
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(contact) {
+      renderLoading(contact);
+      searchZoho(contact);
+    })
+    .catch(function(err) {
+      showState("❌", "Erro ao carregar conversa.", err.message);
+    });
+  }
+
+  function searchZoho(contact) {
+    var email = contact.email;
+    var phone = contact.phone_number;
+    if (!email && !phone) {
+      showState("📭", "Contato sem e-mail ou telefone.", contact.name);
+      return;
+    }
+    var tried = [];
+    var attempts = [];
+    if (email) attempts.push(fetchZoho("Contacts", "Email:equals:" + email));
+    if (phone) attempts.push(fetchZoho("Contacts", "Phone:equals:" + phone));
+    if (email) attempts.push(fetchZoho("Leads", "Email:equals:" + email));
+
+    attempts[0].then(function(r) {
+      if (r) { gotRecord(r, contact); return; }
+      return attempts[1] ? attempts[1] : null;
+    }).then(function(r) {
+      if (!r) return attempts[2] ? attempts[2] : null;
+      if (r && r.id) { gotRecord(r, contact); return null; }
+      return attempts[2] ? attempts[2] : null;
+    }).then(function(r) {
+      if (!r) return;
+      if (r && r.id) { gotRecord(r, contact); return; }
+      dot.classList.add("error");
+      showState("🔍", "Nenhum registro no Zoho CRM.", "Buscado: " + (email || phone));
+    }).catch(function(err) {
+      dot.classList.add("error");
+      showState("❌", "Erro ao consultar Zoho.", err.message);
+    });
+  }
+
+  function gotRecord(r, contact) {
+    dot.classList.remove("error");
+    dot.classList.add("connected");
+    renderRecord(r, contact);
+  }
+
+  function fetchZoho(module, criteria) {
+    var url = ZOHO_BASE + "/crm/v3/" + module + "/search?criteria=(" + criteria + ")&fields=First_Name,Last_Name,Email,Phone,Mobile,Account_Name,Lead_Status,Lead_Source,Owner,id";
+    return fetch(url, { headers: { "Authorization": "Zoho-oauthtoken " + ZOHO_TOKEN } })
+      .then(function(res) {
+        if (res.status === 401) throw new Error("Token Zoho expirado (401)");
+        if (!res.ok) return null;
+        return res.json();
+      })
+      .then(function(json) {
+        return (json && json.data && json.data[0]) ? json.data[0] : null;
+      });
+  }
+
+  function renderLoading(contact) {
+    main.innerHTML =
+      '<div class="card"><div class="contact-hero">' +
+      '<div class="avatar">' + initials(contact.name || "?") + '</div>' +
+      '<div class="contact-info"><h2>' + esc(contact.name || "Sem nome") + '</h2>' +
+      '<div class="role">Buscando no Zoho CRM...</div></div></div></div>' +
+      '<div class="state-box"><div class="spinner"></div><p>Consultando registros...</p></div>';
+  }
+
+  function renderRecord(r, contact) {
+    var name    = ([r.First_Name, r.Last_Name].filter(Boolean).join(" ")) || contact.name || "—";
+    var email   = r.Email || contact.email || null;
+    var phone   = r.Phone || r.Mobile || contact.phone_number || null;
+    var company = (r.Account_Name && r.Account_Name.name) ? r.Account_Name.name : (typeof r.Account_Name === "string" ? r.Account_Name : null);
+    var status  = r.Lead_Status || null;
+    var source  = r.Lead_Source || null;
+    var owner   = (r.Owner && r.Owner.name) ? r.Owner.name : null;
+    var module  = r.Account_Name !== undefined ? "Contacts" : "Leads";
+    var zohoUrl = "https://crm.zoho.com/crm/org/tab/" + module + "/" + r.id;
+    var statusBadge = status
+      ? '<span class="badge ' + statusColor(status) + '">' + esc(status) + '</span>'
+      : '<span class="field-value empty">—</span>';
+
+    main.innerHTML =
+      '<div class="card"><div class="contact-hero">' +
+      '<div class="avatar">' + initials(name) + '</div>' +
+      '<div class="contact-info"><h2>' + esc(name) + '</h2>' +
+      '<div class="role">' + esc(company || (module === "Leads" ? "Lead" : "Contato")) + '</div>' +
+      '</div></div></div>' +
+
+      '<div class="card"><div class="card-header">Informações de Contato</div><div class="field-list">' +
+      fieldRow("✉️","E-mail",email) + fieldRow("📞","Telefone",phone) +
+      fieldRow("🏢","Empresa",company) + fieldRow("👤","Responsável",owner) +
+      '</div></div>' +
+
+      '<div class="card"><div class="card-header">CRM</div><div class="field-list">' +
+      '<div class="field-row"><div class="field-icon">🏷️</div><div>' +
+      '<div class="field-label">STATUS</div><div style="margin-top:3px">' + statusBadge + '</div></div></div>' +
+      fieldRow("📡","Origem",source) +
+      '</div></div>' +
+
+      '<div class="card" style="padding:14px">' +
+      '<a href="' + zohoUrl + '" target="_blank" class="btn-zoho">' +
+      '<svg viewBox="0 0 24 24"><path d="M4 4h16v2.5L9.5 18H20v2H4v-2.5L14.5 6H4V4z"/></svg>' +
+      'Abrir no Zoho CRM</a>' +
+      '<button class="btn-refresh" onclick="loadRecentConversations()">← Voltar para lista</button>' +
+      '</div>';
+  }
+
+  function fieldRow(icon, label, value) {
+    var display = value ? '<div class="field-value">' + esc(value) + '</div>' : '<div class="field-value empty">Não informado</div>';
+    return '<div class="field-row"><div class="field-icon">' + icon + '</div><div><div class="field-label">' + label.toUpperCase() + '</div>' + display + '</div></div>';
+  }
+
+  function showState(icon, msg, detail) {
+    main.innerHTML = '<div class="card"><div class="state-box"><div class="icon">' + icon + '</div><p>' + esc(msg) + '</p>' + (detail ? '<small>' + esc(detail) + '</small>' : '') + '</div></div>' +
+      '<button class="btn-refresh" onclick="loadRecentConversations()">🔄 Tentar novamente</button>';
+  }
+
+  function initials(n) { return (n||"?").split(" ").slice(0,2).map(function(w){return w[0];}).join("").toUpperCase(); }
+  function esc(s) { return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+  function statusColor(s) {
+    s = (s||"").toLowerCase();
+    if (s.includes("qualif")||s.includes("won")) return "badge-green";
+    if (s.includes("contact")||s.includes("demo")) return "badge-blue";
+    if (s.includes("lost")||s.includes("dead")) return "badge-gray";
+    return "badge-orange";
+  }
+</script>
+</body>
+</html>
