@@ -1,0 +1,1 @@
+DROP POLICY "public insert chatwoot_events" ON public.chatwoot_events;
