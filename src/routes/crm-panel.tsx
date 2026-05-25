@@ -15,7 +15,14 @@ import {
   Briefcase,
   MessageSquare,
   Plus,
+ import {
+  // ... outros icones
   AlertCircle,
+  Webhook,
+  AlignLeft,      // <-- adicione esta linha
+  Clock,          // <-- adicione esta linha
+} from "lucide-react";
+
   Webhook,
 } from "lucide-react";
 
@@ -440,7 +447,30 @@ function CrmPanelPage() {
                 >
                   {status.label}
                 </span>
-              </div>
+                     {/* Bloco existente da empresa */}
+            <Row
+              icon={<Building2 className="h-3.5 w-3.5" />}
+              value={
+                zohoContact?.Account_Name?.name ??
+                contact.additional_attributes?.company_name
+              }
+            />
+            
+            {/* COPIE E COLE ESSES DOIS BLOCOS ABAIXO */}
+            {zohoContact?.Description && (
+              <Row
+                icon={<AlignLeft className="h-3.5 w-3.5" />}
+                value={`Descrição: ${zohoContact.Description}`}
+              />
+            )}
+            
+            {zohoContact?.Created_Time && (
+              <Row
+                icon={<Clock className="h-3.5 w-3.5" />}
+                value={`Criado em: ${new Date(zohoContact.Created_Time).toLocaleString("pt-BR")}`}
+              />
+            )}
+
             </div>
             <Row icon={<Phone className="h-3.5 w-3.5" />} value={contact.phone_number} />
             <Row icon={<Mail className="h-3.5 w-3.5" />} value={contact.email} />
