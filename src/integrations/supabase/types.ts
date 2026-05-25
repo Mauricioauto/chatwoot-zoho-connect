@@ -14,7 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      chatwoot_events: {
+        Row: {
+          account_id: string | null
+          contact_id: string | null
+          conversation_id: string | null
+          event: string | null
+          id: number
+          payload: Json
+          received_at: string
+        }
+        Insert: {
+          account_id?: string | null
+          contact_id?: string | null
+          conversation_id?: string | null
+          event?: string | null
+          id?: number
+          payload: Json
+          received_at?: string
+        }
+        Update: {
+          account_id?: string | null
+          contact_id?: string | null
+          conversation_id?: string | null
+          event?: string | null
+          id?: number
+          payload?: Json
+          received_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
